@@ -1,15 +1,21 @@
 import { useState, useEffect, useRef } from "react";
 
 // Constants
-import { images } from "./constants";
+import { images, OperationModes } from "./constants";
 
 function App() {
-  // console.log("OG Image", images);
+  // Ref
+  const intervalRef = useRef(null);
 
   // States
   const [initialImage, setInitialImage] = useState(images);
+  const [searchCommand, setSearchCommand] = useState("");
+  const [selectedIndex, setSelectedIndex] = useState(0);
 
-  const [showUpload, setShowUpload] = useState(false);
+  const [operationMode, setOperationMode] = useState(OperationModes.MANUAL);
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  const [showState, setShowState] = useState("carousel"); // carousel, upload, setting
   const [showCommandBar, setShowCommandBar] = useState(false);
 
   // Effects
@@ -28,44 +34,66 @@ function App() {
         console.log("Closed with Esc");
         document.body.style.overflow = "auto";
       }
-
-      // Close command bar with Escape key
-      // if (e.key === "Escape" && showCommandBar) {
-      //   closeDialog();
-      //   console.log("Closed with Esc");
-      //   document.body.style.overflow = "auto";
-      // }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [showCommandBar]);
 
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (operationMode === OperationModes.MANUAL) {
+        if (e.key === "ArrowRight") {
+          e.preventDefault();
+          goToNext();
+        } else if (e.key === "ArrowLeft") {
+          e.preventDefault();
+          goToPrev();
+        }
+      }
+
+      return;
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [operationMode]);
+
+  // --- Operation Logic ---
+  useEffect(() => {
+    // Clean up interval if mode changes
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+
+    if (operationMode === OperationModes.AUTO) {
+      intervalRef.current = setInterval(() => {
+        setCurrentIndex((prev) => (prev + 1) % initialImage.length);
+      }, 3000);
+    }
+
+    if (operationMode === OperationModes.RANDOM) {
+      intervalRef.current = setInterval(() => {
+        const randomIndex = Math.floor(Math.random() * initialImage.length);
+        setCurrentIndex(randomIndex);
+      }, 3000);
+    }
+
+    return () => {
+      clearInterval(intervalRef.current);
+    };
+  }, [operationMode, initialImage.length]);
+
   // Functions
-  const convertImageName = (imagePath) => {
-    // TODO: Not implemented
 
-    /*
-      The caption of the photos is defined by the filename. Please capitalize the remove slug of the filename. And the
-caption doesn't contain a file extension.
-For example, given a filename named "hello.jpg", the caption is Hello.
-For example, the caption for "hello world.jpg" will be "Hello World".
-For example, the caption for the "a-sample-photo.jpg" will be "A Sample Photo".
-    */
-
-    // Extract the file name from the full path/URL
-    const filename = imagePath.split("/").pop().split("?")[0]; // remove query if exists
-
-    // Remove the extension (like .jpg, .png)
+  const convertImageName = (path) => {
+    const filename = path.split("/").pop().split("?")[0];
     const nameWithoutExt = filename.replace(/\.[^/.]+$/, "");
-
-    // Replace dashes or underscores with space, then capitalize each word
-    const words = nameWithoutExt.split(/[-_ ]+/).map((word) => {
-      return word.charAt(0).toUpperCase() + word.slice(1);
-    });
-
-    // Join the capitalized words
-    return words.join(" ");
+    return nameWithoutExt
+      .split(/[-_ ]+/)
+      .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+      .join(" ");
   };
 
   const onUploadImage = (e) => {
@@ -77,7 +105,7 @@ For example, the caption for the "a-sample-photo.jpg" will be "A Sample Photo".
       setInitialImage((prev) => [...prev, url]);
       console.log("Image URL:", url);
 
-      setShowUpload(false);
+      setShowState("carousel"); // Switch to carousel view after upload
     }
   };
 
@@ -87,65 +115,147 @@ For example, the caption for the "a-sample-photo.jpg" will be "A Sample Photo".
 
   const closeDialog = () => {
     setShowCommandBar(false);
+    setSelectedIndex(0); // Reset selected index when closing
+  };
+
+  const handleSearchCommandChange = (e) => {
+    const value = e.target.value;
+    setSearchCommand(value);
+    console.log("Search command:", value);
+
+    setSelectedIndex(0); // Reset selected index on search change
+  };
+
+  const handleSearchCommandBarKeydown = (e) => {
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+
+      console.log("ArrowDown pressed");
+
+      setSelectedIndex((prev) =>
+        prev < filteredCommands.length - 1 ? prev + 1 : 0
+      );
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+
+      console.log("ArrowUp pressed");
+
+      setSelectedIndex((prev) =>
+        prev > 0 ? prev - 1 : filteredCommands.length - 1
+      );
+    } else if (e.key === "Enter") {
+      e.preventDefault();
+      if (filteredCommands[selectedIndex]) {
+        filteredCommands[selectedIndex].fn();
+        closeDialog(); // close after selection
+      }
+
+      console.log("Enter pressed");
+    }
+  };
+
+  const goToNext = () => {
+    setCurrentIndex((prev) => (prev + 1) % initialImage.length);
+  };
+
+  const goToPrev = () => {
+    setCurrentIndex(
+      (prev) => (prev - 1 + initialImage.length) % initialImage.length
+    );
   };
 
   // Variable
   const commandBar = [
     {
       title: "Change to manual control mode",
-      fn: () => {},
+      fn: () => {
+        console.log("Manual Control Mode");
+
+        setOperationMode(OperationModes.MANUAL);
+      },
     },
     {
       title: "Change to auto-playing mode",
-      fn: () => {},
+      fn: () => {
+        console.log("Auto Playing Mode");
+
+        setOperationMode(OperationModes.AUTO);
+      },
     },
     {
       title: "Change to random playing mode",
-      fn: () => {},
+      fn: () => {
+        console.log("Random Playing Mode");
+        setOperationMode(OperationModes.RANDOM);
+      },
     },
     {
       title: "Switch to theme A",
-      fn: () => {},
+      fn: () => {
+        console.log("Switched to theme A");
+      },
     },
     {
       title: "Switch to theme B",
-      fn: () => {},
+      fn: () => {
+        console.log("Switched to theme B");
+      },
     },
     {
       title: "Switch to theme C",
-      fn: () => {},
+      fn: () => {
+        console.log("Switched to theme C");
+      },
     },
     {
       title: "Switch to theme D",
-      fn: () => {},
+      fn: () => {
+        console.log("Switched to theme D");
+      },
     },
     {
       title: "Switch to theme E",
-      fn: () => {},
+      fn: () => {
+        console.log("Switched to theme E");
+      },
     },
     {
       title: "Switch to theme F",
-      fn: () => {},
+      fn: () => {
+        console.log("Switched to theme F");
+      },
     },
   ];
+
+  const filteredCommands = commandBar.filter((item) =>
+    item.title.toLowerCase().includes(searchCommand.toLowerCase())
+  );
 
   return (
     <main className="app">
       {/* Tools bar */}
       <div className="tools-bar-container">
-        <button type="button" onClick={() => setShowUpload((prev) => !prev)}>
-          {showUpload ? "Cancel Upload" : "Upload"}
+        <button
+          type="button"
+          onClick={() =>
+            setShowState(showState === "upload" ? "carousel" : "upload")
+          }
+        >
+          {showState === "upload" ? "Cancel Upload" : "Upload"}
         </button>
-        <button>Setingg</button>
-        <button>Full Screen</button>
+        <button
+          type="button"
+          onClick={() =>
+            setShowState(showState === "settings" ? "carousel" : "settings")
+          }
+        >
+          {showState === "settings" ? "Close Settings" : "Open Settings"}
+        </button>
+        <button type="button">Full Screen</button>
       </div>
 
-      {/* Implement Drag and Drop Zone */}
-
-      {/* Panel Settings */}
-
       {/* Slideshow Component */}
-      {showUpload ? (
+      {showState === "upload" ? (
         <div className="upload-container">
           <h2>Click here to upload image</h2>
           <p>or Drag and drop</p>
@@ -158,16 +268,81 @@ For example, the caption for the "a-sample-photo.jpg" will be "A Sample Photo".
             onChange={onUploadImage}
           />
         </div>
-      ) : (
-        <div className="slideshow-container">
-          {initialImage.map((item, index) => (
-            <div key={item} className="slideshow-image-wrapper">
-              <div className="slideshow-image">
-                <img src={item} alt={convertImageName(item)} />
-              </div>
-              <p className="image-caption">{convertImageName(item)}</p>
+      ) : showState === "settings" ? (
+        <div className="panel-settings-container">
+          <h2>Setting Panel</h2>
+
+          <div className="panel-settings" id="operation-setting">
+            <h3>Operation Mode</h3>
+
+            <div className="menu-list">
+              <button
+                onClick={() => setOperationMode(OperationModes.MANUAL)}
+                className={operationMode === "manual" ? "button-active" : ""}
+              >
+                Manual
+              </button>
+              <button
+                onClick={() => setOperationMode(OperationModes.AUTO)}
+                className={operationMode === "auto" ? "button-active" : ""}
+              >
+                Auto
+              </button>
+              <button
+                onClick={() => setOperationMode(OperationModes.RANDOM)}
+                className={operationMode === "random" ? "button-active" : ""}
+              >
+                Random
+              </button>
             </div>
-          ))}
+          </div>
+          <div className="panel-settings" id="theme-setting">
+            <h3>Theme</h3>
+            <div className="menu-list">
+              <button>Theme A</button>
+              <button>Theme B</button>
+              <button>Theme C</button>
+              <button>Theme D</button>
+              <button>Theme E</button>
+              <button>Theme F</button>
+            </div>
+          </div>
+          <div className="panel-settings" id="ordering-setting">
+            <h3>Ordering photo</h3>
+
+            <div className="image-lists">
+              {initialImage.map((item, index) => (
+                <div key={item} className="ordering-item">
+                  <img src={item} alt={convertImageName(item)} />
+                  <p>{convertImageName(item)}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="flex flex-col">
+          <div className="slideshow-container">
+            <div className="slideshow-image-wrapper">
+              <div className="slideshow-image">
+                <img
+                  src={initialImage[currentIndex]}
+                  alt={convertImageName(initialImage[currentIndex])}
+                />
+              </div>
+              <p className="image-caption">
+                {convertImageName(initialImage[currentIndex])}
+              </p>
+            </div>
+          </div>
+
+          {/* Manual Mode Controls */}
+          {operationMode === OperationModes.MANUAL && (
+            <div className="manual-controls">
+              <button onClick={goToPrev}>⟨ Prev</button>
+              <button onClick={goToNext}>Next ⟩</button>
+            </div>
+          )}
         </div>
       )}
 
@@ -179,11 +354,25 @@ For example, the caption for the "a-sample-photo.jpg" will be "A Sample Photo".
             <h3>Command Bar</h3>
 
             <div className="command-bar-control">
-              <input type="text" placeholder="Enter command...." />
+              <input
+                type="text"
+                placeholder="Enter command...."
+                value={searchCommand}
+                onChange={handleSearchCommandChange}
+                autoFocus
+                onKeyDown={handleSearchCommandBarKeydown}
+              />
 
               <div className="command-group">
-                {commandBar.map((item) => (
-                  <button key={item.title} onClick={item.fn}>
+                {filteredCommands.map((item, index) => (
+                  <button
+                    key={item.title}
+                    onClick={() => {
+                      item.fn();
+                      closeDialog();
+                    }}
+                    className={index === selectedIndex ? "active" : ""}
+                  >
                     {item.title}
                   </button>
                 ))}

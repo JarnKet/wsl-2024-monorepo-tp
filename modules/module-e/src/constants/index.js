@@ -4,3 +4,9 @@ export const images = [
   "/images/place-bellecour-lyon.jpg",
   "/images/tour-metalique-lyon.jpg",
 ];
+
+export const OperationModes = {
+  MANUAL: "manual",
+  AUTO: "auto",
+  RANDOM: "random",
+};
