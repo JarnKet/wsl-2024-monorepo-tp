@@ -6,6 +6,9 @@ import { images, OperationModes } from "./constants";
 function App() {
   // Ref
   const intervalRef = useRef(null);
+  const slideshowRef = useRef(null);
+  const dragItem = useRef(null);
+  const dragOverItem = useRef(null);
 
   // States
   const [initialImage, setInitialImage] = useState(images);
@@ -164,6 +167,46 @@ function App() {
     );
   };
 
+  const onDragStart = (e) => {
+    dragItem.current = e.target.id;
+
+    console.log(e.target.id, "drag start");
+  };
+
+  const onDragEnter = (e) => {
+    dragOverItem.current = e.currentTarget.id;
+
+    console.log(e.currentTarget.id, "drag enter");
+  };
+
+  const onDragEnd = () => {
+    const copyList = [...initialImage];
+    const draggedItem = copyList[dragItem.current];
+
+    copyList.splice(dragItem.current, 1);
+    copyList.splice(dragOverItem.current, 0, draggedItem);
+
+    setInitialImage(copyList);
+
+    dragItem.current = null;
+    dragOverItem.current = null;
+  };
+
+  const toggleFullScreen = () => {
+    const el = slideshowRef.current;
+    if (!el) return;
+
+    if (!document.fullscreenElement) {
+      el.requestFullscreen().catch((err) => {
+        console.error(
+          `Error attempting to enable full-screen mode: ${err.message}`
+        );
+      });
+    } else {
+      document.exitFullscreen();
+    }
+  };
+
   // Variable
   const commandBar = [
     {
@@ -244,14 +287,18 @@ function App() {
           {showState === "upload" ? "Cancel Upload" : "Upload"}
         </button>
         <button
+          className="setting-button"
           type="button"
           onClick={() =>
             setShowState(showState === "settings" ? "carousel" : "settings")
           }
         >
+          <img src="/icons/setting-icon.png" alt="Setting Button" />
           {showState === "settings" ? "Close Settings" : "Open Settings"}
         </button>
-        <button type="button">Full Screen</button>
+        <button type="button" onClick={toggleFullScreen}>
+          Full Screen
+        </button>
       </div>
 
       {/* Slideshow Component */}
@@ -312,7 +359,15 @@ function App() {
 
             <div className="image-lists">
               {initialImage.map((item, index) => (
-                <div key={item} className="ordering-item">
+                <div
+                  id={index}
+                  draggable
+                  onDragStart={onDragStart}
+                  onDragEnter={onDragEnter}
+                  onDragEnd={onDragEnd}
+                  key={item}
+                  className="ordering-item"
+                >
                   <img src={item} alt={convertImageName(item)} />
                   <p>{convertImageName(item)}</p>
                 </div>
@@ -322,7 +377,7 @@ function App() {
         </div>
       ) : (
         <div className="flex flex-col">
-          <div className="slideshow-container">
+          <div ref={slideshowRef} className="slideshow-container">
             <div className="slideshow-image-wrapper">
               <div className="slideshow-image">
                 <img

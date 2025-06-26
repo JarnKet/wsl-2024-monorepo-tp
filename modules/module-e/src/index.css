@@ -246,9 +246,36 @@
   }
 }
 
+.setting-button {
+  display: flex;
+  justify-content: center;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+
+  img {
+    width: 16px;
+    height: 16px;
+  }
+}
+
 .button-active {
   background-color: #007bff !important;
   color: #fff;
   font-weight: bold;
   cursor: pointer;
+}
+
+:fullscreen .slideshow-container {
+  width: 100vw;
+  height: 100vh;
+}
+
+:fullscreen .slideshow-image {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+:fullscreen img {
+  object-fit: contain;
 }
