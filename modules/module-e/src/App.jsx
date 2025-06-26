@@ -3,6 +3,14 @@ import { useState, useEffect, useRef } from "react";
 // Constants
 import { images, OperationModes } from "./constants";
 
+// Themes
+import ThemeA from "./components/themes/ThemeA";
+import ThemeB from "./components/themes/ThemeB";
+import ThemeC from "./components/themes/ThemeC";
+import ThemeD from "./components/themes/ThemeD";
+import ThemeE from "./components/themes/ThemeE";
+import ThemeF from "./components/themes/ThemeF";
+
 function App() {
   // Ref
   const intervalRef = useRef(null);
@@ -16,9 +24,12 @@ function App() {
   const [selectedIndex, setSelectedIndex] = useState(0);
 
   const [operationMode, setOperationMode] = useState(OperationModes.MANUAL);
+  const [theme, setTheme] = useState("themeA");
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [previousIndex, setPreviousIndex] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(false);
 
-  const [showState, setShowState] = useState("carousel"); // carousel, upload, setting
+  const [showState, setShowState] = useState("carousel");
   const [showCommandBar, setShowCommandBar] = useState(false);
 
   // Effects
@@ -274,6 +285,68 @@ function App() {
     item.title.toLowerCase().includes(searchCommand.toLowerCase())
   );
 
+  const renderTheme = () => {
+    switch (theme) {
+      case "themeA":
+        return (
+          <ThemeA
+            initialImage={initialImage}
+            currentIndex={currentIndex}
+            convertImageName={convertImageName}
+          />
+        );
+
+      case "themeB":
+        return (
+          <ThemeB
+            initialImage={initialImage}
+            currentIndex={currentIndex}
+            convertImageName={convertImageName}
+            isTransitioning={isTransitioning}
+          />
+        );
+      case "themeC":
+        return (
+          <ThemeC
+            initialImage={initialImage}
+            currentIndex={currentIndex}
+            convertImageName={convertImageName}
+            isTransitioning={isTransitioning}
+          />
+        );
+      case "themeD":
+        return (
+          <ThemeD
+            initialImage={initialImage}
+            currentIndex={currentIndex}
+            convertImageName={convertImageName}
+            isTransitioning={isTransitioning}
+          />
+        );
+      case "themeE":
+        return (
+          <ThemeE
+            initialImage={initialImage}
+            currentIndex={currentIndex}
+            previousIndex={previousIndex}
+            convertImageName={convertImageName}
+            isTransitioning={isTransitioning}
+          />
+        );
+      case "themeF":
+        return (
+          <ThemeF
+            initialImage={initialImage}
+            currentIndex={currentIndex}
+            convertImageName={convertImageName}
+            isTransitioning={isTransitioning}
+          />
+        );
+      default:
+        return <ThemeA />;
+    }
+  };
+
   return (
     <main className="app">
       {/* Tools bar */}
@@ -293,20 +366,18 @@ function App() {
             setShowState(showState === "settings" ? "carousel" : "settings")
           }
         >
-          <img src="/icons/setting-icon.png" alt="Setting Button" />
-          {showState === "settings" ? "Close Settings" : "Open Settings"}
+          ⚙️ {showState === "settings" ? "Close Settings" : "Settings"}
         </button>
         <button type="button" onClick={toggleFullScreen}>
           Full Screen
         </button>
       </div>
 
-      {/* Slideshow Component */}
+      {/* Main Content */}
       {showState === "upload" ? (
         <div className="upload-container">
           <h2>Click here to upload image</h2>
           <p>or Drag and drop</p>
-
           <input
             type="file"
             name="upload-image"
@@ -321,7 +392,6 @@ function App() {
 
           <div className="panel-settings" id="operation-setting">
             <h3>Operation Mode</h3>
-
             <div className="menu-list">
               <button
                 onClick={() => setOperationMode(OperationModes.MANUAL)}
@@ -343,20 +413,57 @@ function App() {
               </button>
             </div>
           </div>
+
           <div className="panel-settings" id="theme-setting">
             <h3>Theme</h3>
             <div className="menu-list">
-              <button>Theme A</button>
-              <button>Theme B</button>
-              <button>Theme C</button>
-              <button>Theme D</button>
-              <button>Theme E</button>
-              <button>Theme F</button>
+              <button
+                type="button"
+                onClick={() => setTheme("themeA")}
+                className={theme === "themeA" ? "button-active" : ""}
+              >
+                Theme A
+              </button>
+              <button
+                type="button"
+                onClick={() => setTheme("themeB")}
+                className={theme === "themeB" ? "button-active" : ""}
+              >
+                Theme B
+              </button>
+              <button
+                type="button"
+                onClick={() => setTheme("themeC")}
+                className={theme === "themeC" ? "button-active" : ""}
+              >
+                Theme C
+              </button>
+              <button
+                type="button"
+                onClick={() => setTheme("themeD")}
+                className={theme === "themeD" ? "button-active" : ""}
+              >
+                Theme D
+              </button>
+              <button
+                type="button"
+                onClick={() => setTheme("themeE")}
+                className={theme === "themeE" ? "button-active" : ""}
+              >
+                Theme E
+              </button>
+              <button
+                type="button"
+                onClick={() => setTheme("themeF")}
+                className={theme === "themeF" ? "button-active" : ""}
+              >
+                Theme F
+              </button>
             </div>
           </div>
+
           <div className="panel-settings" id="ordering-setting">
             <h3>Ordering photo</h3>
-
             <div className="image-lists">
               {initialImage.map((item, index) => (
                 <div
@@ -378,17 +485,7 @@ function App() {
       ) : (
         <div className="flex flex-col">
           <div ref={slideshowRef} className="slideshow-container">
-            <div className="slideshow-image-wrapper">
-              <div className="slideshow-image">
-                <img
-                  src={initialImage[currentIndex]}
-                  alt={convertImageName(initialImage[currentIndex])}
-                />
-              </div>
-              <p className="image-caption">
-                {convertImageName(initialImage[currentIndex])}
-              </p>
-            </div>
+            <div className="slideshow-image-wrapper">{renderTheme()}</div>
           </div>
 
           {/* Manual Mode Controls */}
@@ -402,12 +499,10 @@ function App() {
       )}
 
       {/* Command Bar */}
-
-      {showCommandBar ? (
+      {showCommandBar && (
         <div className="command-bar-container">
-          <div className="command-bar" open={showCommandBar}>
+          <div className="command-bar">
             <h3>Command Bar</h3>
-
             <div className="command-bar-control">
               <input
                 type="text"
@@ -417,7 +512,6 @@ function App() {
                 autoFocus
                 onKeyDown={handleSearchCommandBarKeydown}
               />
-
               <div className="command-group">
                 {filteredCommands.map((item, index) => (
                   <button
@@ -435,7 +529,7 @@ function App() {
             </div>
           </div>
         </div>
-      ) : null}
+      )}
     </main>
   );
 }
