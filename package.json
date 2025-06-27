@@ -1531,6 +1531,7 @@
     "//--- BUILD COMMANDS ---": "",
     "build:module-b:frontend": "npm run build -w module-b-frontend",
     "build:module-b": "npm run build:module-b:frontend",
+    "build:module-e": "npm run build -w module-e-frontend",
     "//--- START COMMANDS ---": "",
     "start:module-b:frontend": "npm run start -w module-b-frontend"
   },
