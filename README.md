@@ -1,1 +1,7 @@
-"# wsl-2024-monorepo-tp" 
+# Monorepo - Test project (TP)
+
+...
+
+## Package.json
+
+...
