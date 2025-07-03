@@ -19,7 +19,7 @@ const SettingPage = () => {
           onChange={(e) => handleOnChange("theme", e.target.value)}
           name="theme"
           id="theme"
-          value={theme}
+          defaultValue={theme}
         >
           <option disabled selected>
             Choose Your Theme
@@ -35,7 +35,7 @@ const SettingPage = () => {
         <select
           name="sorting"
           id="sorting"
-          value={sorting}
+          defaultValue={sorting}
           onChange={(e) => handleOnChange("sorting", e.target.value)}
         >
           <option disabled selected>
