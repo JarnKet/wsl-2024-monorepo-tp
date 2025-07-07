@@ -1,0 +1,43 @@
+{
+	"folders": [
+		{
+			"name": "Acient",
+			"subfolders": [
+				{
+					"name": "Ancient & Roman",
+					"files": [
+						"2024-06-07-ancient-theatre.txt",
+						"2024-12-12-musee-gallo-romain.txt"
+					]
+				},
+				{
+					"name": "Medieval & Renaissance",
+					"files": [
+						"2024-03-02-lyon-hotel-de-ville-vlog.txt",
+						"2024-05-04-vieux-lyon.txt",
+						"2025-01-01-Lyon_Cathedral_St_Jean_Baptiste_Vlog.txt"
+					]
+				},
+				{
+					"name": "Modern & Contemporary",
+					"files": [
+						"2024-06-20-lyon-musee-des-beaux-arts.txt",
+						"2024-08-10-Lyon-Musee-des-Confluences.txt"
+					]
+				}
+			]
+		},
+		{
+			"name": "Other Notable Sites",
+			"files": [
+				"2022-10-11-the-cathedral-of-saint-jean-baptiste.html",
+				"2023-11-30-Lyon-Musee-Miniature-et-Cinema-Vlog.html",
+				"2024-05-02-lyon-place-bellecour.txt",
+				"2024-06-12-Lyon-Parc-de-la-Tête-d'Or.txt",
+				"draft-writing.txt",
+				"2023-10-20-walk-through the city.txt",
+				"2023-12-28-tips-of-using-lyon-city-card.txt"
+			]
+		}
+	]
+}

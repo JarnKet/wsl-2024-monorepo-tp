@@ -14,8 +14,7 @@ const CarparksPage = () => {
   const myLocation = {
     latitude: 45.755051,
     longitude: 4.846358,
-  };
-
+  };3
   const { data, loading, error } = useFetch(getCarparks);
   const { getKeyValue, setKeyValue } = useLocalStorage();
 
