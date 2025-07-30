@@ -1,5 +1,6 @@
+import { Navigate } from 'react-router-dom';
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import Layout from './components/Layout';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -33,49 +34,49 @@ function App() {
                 <Navigate to="/admin/companies" replace />
               </ProtectedRoute>
             } />
-
+            
             <Route path="/admin/companies" element={
               <ProtectedRoute>
                 <CompaniesListPage />
               </ProtectedRoute>
             } />
-
+            
             <Route path="/admin/companies/new" element={
               <ProtectedRoute>
                 <CompanyFormPage />
               </ProtectedRoute>
             } />
-
+            
             <Route path="/admin/companies/:id" element={
               <ProtectedRoute>
                 <CompanyDetailPage />
               </ProtectedRoute>
             } />
-
+            
             <Route path="/admin/companies/:id/edit" element={
               <ProtectedRoute>
                 <CompanyFormPage />
               </ProtectedRoute>
             } />
-
+            
             <Route path="/admin/products" element={
               <ProtectedRoute>
                 <ProductsListPage />
               </ProtectedRoute>
             } />
-
+            
             <Route path="/admin/products/new" element={
               <ProtectedRoute>
                 <ProductFormPage />
               </ProtectedRoute>
             } />
-
+            
             <Route path="/admin/products/:id" element={
               <ProtectedRoute>
                 <ProductDetailPage />
               </ProtectedRoute>
             } />
-
+            
             <Route path="/admin/products/:id/edit" element={
               <ProtectedRoute>
                 <ProductFormPage />
