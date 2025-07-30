@@ -1,0 +1,38 @@
+USE ws01;
+
+CREATE TABLE companies (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    company_name VARCHAR(255) NOT NULL,
+    address TEXT,
+    telephone VARCHAR(50),
+    email VARCHAR(255),
+    owner_name VARCHAR(255),
+    owner_mobile VARCHAR(50),
+    owner_email VARCHAR(255),
+    contact_name VARCHAR(255),
+    contact_mobile VARCHAR(50),
+    contact_email VARCHAR(255),
+    is_deactivated BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE products (
+    gtin VARCHAR(14) PRIMARY KEY,
+    name_en VARCHAR(255) NOT NULL,
+    name_fr VARCHAR(255) NOT NULL,
+    description_en TEXT,
+    description_fr TEXT,
+    brand VARCHAR(255),
+    country_of_origin VARCHAR(100),
+    gross_weight DECIMAL(10, 3),
+    net_weight DECIMAL(10, 3),
+    weight_unit VARCHAR(10),
+    image_path VARCHAR(255),
+    is_hidden BOOLEAN DEFAULT FALSE,
+    company_id INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE RESTRICT,
+    INDEX (gtin) -- สร้าง Index บน GTIN ตามข้อกำหนด
+);
